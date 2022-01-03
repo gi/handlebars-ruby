@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+  pull_request:
+    branches:
+      - develop
+      - main
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ruby-3.0
+          bundler-cache: true
+      - name: Test
+        run: bundle exec rake
+      - name: Upload
+        uses: paambaati/codeclimate-action@v3.0.0
+        env:
+          CC_TEST_REPORTER_ID: cf390690a98dc04002844cd39dc93e82dad9c9f0f1f2f80b2dd148d5042ce345
+        with:
+          coverageLocations: ${{ github.workspace }}/spec/reports/coverage/coverage.xml:cobertura
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ruby-3.0
+          bundler-cache: true
+      - name: Lint
+        run: bundle exec rubocop
+
+  test:
+    strategy:
+      matrix:
+        os:
+          # - macos-latest
+          - ubuntu-latest
+        ruby:
+          - ruby-2.6
+          - ruby-2.7
+          - ruby-3.0
+          # - jruby
+          # - truffleruby
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - name: Test
+        run: bundle exec rake
