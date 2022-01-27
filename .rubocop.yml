@@ -119,9 +119,6 @@ Metrics/ClassLength:
     - heredoc
   Max: 120
 
-Metrics/CyclomaticComplexity:
-  Max: 10
-
 Metrics/MethodLength:
   CountAsOne:
     - array
@@ -138,8 +135,14 @@ Metrics/ModuleLength:
 Metrics/ParameterLists:
   Max: 10
 
+RSpec/ExampleLength:
+  CountAsOne:
+    - array
+    - hash
+    - heredoc
+
 RSpec/MultipleMemoizedHelpers:
-  Max: 10
+  Max: 20
 
 RSpec/NestedGroups:
   Max: 8
