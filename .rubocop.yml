@@ -10,6 +10,9 @@ AllCops:
     - vendor/**/*
   NewCops: enable
 
+Gemspec/RequireMFA:
+  Enabled: false
+
 Layout/ArgumentAlignment:
   EnforcedStyle: with_fixed_indentation
 
