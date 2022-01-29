@@ -16,7 +16,10 @@ module Handlebars
     #
     # @param lazy [true, false] immediately loads and initializes the JavaScript
     #   environment.
-    def initialize(lazy: false)
+    # @param path [String, nil] the path to the version of Handlebars to load.
+    #   If `nil`, the contents of `Handlebars::Source.bundled_path` is loaded.
+    def initialize(lazy: false, path: nil)
+      @path = path
       init! unless lazy
     end
 
@@ -204,7 +207,7 @@ module Handlebars
       return if @init
 
       @context = MiniRacer::Context.new
-      @context.load(::Handlebars::Source.bundled_path)
+      @context.load(@path || ::Handlebars::Source.bundled_path)
       @context.load(File.absolute_path("engine/init.js", __dir__))
 
       @init = true
