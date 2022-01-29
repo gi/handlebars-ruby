@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "tempfile"
+
 RSpec.describe Handlebars::Engine do
   let(:engine) { described_class.new(**engine_options) }
   let(:engine_context) { engine.instance_variable_get(:@context) }
@@ -39,6 +41,36 @@ RSpec.describe Handlebars::Engine do
 
       it "does not create the context" do
         expect(engine_context).to be nil
+      end
+    end
+
+    context "when `path` is defined" do
+      let(:file) { Tempfile.open }
+
+      before do
+        engine_options[:path] = file.path
+        file.write <<~HANDLEBARS
+          var Handlebars = {
+            compile: () => "compile",
+            precompile: () => "precompile",
+            template: () => "template",
+            registerPartial: () => "registerPartial",
+            unregisterPartial: () => "unregisterPartial",
+            registerHelper: () => "registerHelper",
+            unregisterHelper: () => "unregisterHelper",
+            partials: {},
+            VERSION: "VERSION",
+          };
+        HANDLEBARS
+        file.rewind
+      end
+
+      after do
+        file.close
+      end
+
+      it "loads the file contents" do
+        expect(engine_context.eval("VERSION")).to eq("VERSION")
       end
     end
   end
