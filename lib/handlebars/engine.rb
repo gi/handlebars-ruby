@@ -68,9 +68,12 @@ module Handlebars
     # @yieldparam arguments [Object] the arguments (optional)
     # @yieldparam options [Hash] the options hash (optional)
     # @see https://handlebarsjs.com/api-reference/runtime.html#handlebars-registerhelper-name-helper
-    def register_helper(name, &block)
-      attach(name, &block)
-      call(:registerHelper, [name.to_s, name.to_sym], eval: true)
+    def register_helper(name = nil, **helpers, &block)
+      helpers[name] = block if name
+      helpers.each do |n, f|
+        attach(n, &f)
+        call(:registerHelper, [n.to_s, n.to_sym], eval: true)
+      end
     end
 
     # Unregisters a previously registered helper.

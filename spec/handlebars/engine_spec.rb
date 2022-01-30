@@ -146,7 +146,7 @@ RSpec.describe Handlebars::Engine do
 
   describe "#register_helper" do
     let(:name) { :helper }
-    let(:function) { ->(ctx, *args, opts) {} }
+    let(:function) { ->(_ctx, *_args, _opts) { rendered } }
     let(:template) { "{{#{name} name name=name}}" }
 
     before do
@@ -158,7 +158,27 @@ RSpec.describe Handlebars::Engine do
       expect(engine).to respond_to(:register_helper)
     end
 
-    describe "rendering" do
+    context "with positional parameters" do
+      before do
+        engine.register_helper(name, &function)
+      end
+
+      describe "rendering" do
+        include_examples "rendering"
+      end
+    end
+
+    context "with keyword parameters" do
+      before do
+        engine.register_helper(name => function)
+      end
+
+      describe "rendering" do
+        include_examples "rendering"
+      end
+    end
+
+    describe "parameters" do
       describe "the first parameter" do
         it "is the context" do
           render_context.transform_keys!(&:to_s)
