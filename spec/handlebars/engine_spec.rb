@@ -150,8 +150,7 @@ RSpec.describe Handlebars::Engine do
     let(:template) { "{{#{name} name name=name}}" }
 
     before do
-      allow(function).to receive(:call).with(any_args).and_call_original
-      engine.register_helper(name, &function)
+      engine.register_helper(name, function)
     end
 
     it "is defined" do
@@ -159,12 +158,24 @@ RSpec.describe Handlebars::Engine do
     end
 
     context "with positional parameters" do
-      before do
-        engine.register_helper(name, &function)
+      context "when function is argument" do
+        before do
+          engine.register_helper(name, function)
+        end
+
+        describe "rendering" do
+          include_examples "rendering"
+        end
       end
 
-      describe "rendering" do
-        include_examples "rendering"
+      context "when function is block" do
+        before do
+          engine.register_helper(name, &function)
+        end
+
+        describe "rendering" do
+          include_examples "rendering"
+        end
       end
     end
 
@@ -178,7 +189,11 @@ RSpec.describe Handlebars::Engine do
       end
     end
 
-    describe "parameters" do
+    context "with a Ruby function" do
+      before do
+        allow(function).to receive(:call).with(any_args).and_call_original
+      end
+
       describe "the first parameter" do
         it "is the context" do
           render_context.transform_keys!(&:to_s)
@@ -229,6 +244,80 @@ RSpec.describe Handlebars::Engine do
             args = [anything, any_args, opts]
             render
             expect(function).to have_received(:call).with(*args)
+          end
+        end
+      end
+    end
+
+    context "with a JavaScript function" do
+      let(:function) {
+        <<~JS
+          function (...args) {
+            args.unshift(this);
+            return tester(...args);
+          }
+        JS
+      }
+      let(:tester) { ->(_ctx, *_args, _opts) { rendered } }
+
+      before do
+        allow(tester).to receive(:call).with(any_args).and_call_original
+        engine_context.attach("tester", tester)
+      end
+
+      describe "rendering" do
+        include_examples "rendering"
+      end
+
+      describe "`this`" do
+        it "is the context" do
+          render_context.transform_keys!(&:to_s)
+          args = [render_context, any_args, anything]
+          render
+          expect(tester).to have_received(:call).with(*args)
+        end
+      end
+
+      describe "the first parameter(s)" do
+        it "is the positional argument(s)" do
+          args = [anything, *render_context.values_at(:name), anything]
+          render
+          expect(tester).to have_received(:call).with(*args)
+        end
+      end
+
+      describe "the last parameter" do
+        it "is the options" do
+          opts = include(
+            "data" => kind_of(Hash),
+            "hash" => { "name" => render_context[:name] },
+            "name" => name.to_s,
+          )
+          args = [anything, any_args, opts]
+          render
+          expect(tester).to have_received(:call).with(*args)
+        end
+      end
+
+      context "with a block helper" do
+        let(:template) { "{{##{name} age}}function{{else}}inverse{{/#{name}}}" }
+        let(:function) {
+          <<~JS
+            function (age, opts) {
+              return age > 0 ? opts.fn() : opts.inverse();
+            }
+          JS
+        }
+
+        describe "the options" do
+          it "includes the main block function" do
+            render_context[:age] = 30
+            expect(render).to eq("function")
+          end
+
+          it "includes the else block function" do
+            render_context[:age] = 0
+            expect(render).to eq("inverse")
           end
         end
       end
