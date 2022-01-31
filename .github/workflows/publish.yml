@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - lib/**/version
 
 permissions:
   contents: write
@@ -14,6 +12,7 @@ permissions:
 jobs:
   github:
     name: GitHub
+    needs: tag
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -26,9 +25,11 @@ jobs:
       - name: Publish to GitHub
         env:
           GEM_HOST_API_KEY: "Bearer ${{secrets.GITHUB_TOKEN}}"
+          RUBYGEMS_HOST: https://rubygems.pkg.github.com/${{github.repository_owner}}
         run: bin/release
   rubygems:
     name: RubyGems
+    needs: tag
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -42,3 +43,16 @@ jobs:
         env:
           GEM_HOST_API_KEY: "${{secrets.RUBYGEMS_TOKEN}}"
         run: bin/release
+  tag:
+    name: Git Tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ruby-3
+          bundler-cache: true
+      - name: Tag
+        run: bin/tag

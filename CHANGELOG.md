@@ -7,14 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2022-01-31
+
 ### Added
 - `initialize`: add path parameter ([#5](https://github.com/gi/handlebars-ruby/pull/5))
 - `register_helper`: accept multiple helpers as keyword parameters ([#6](https://github.com/gi/handlebars-ruby/pull/6))
 - `register_helper`: accept javascript function as string ([#7](https://github.com/gi/handlebars-ruby/pull/7))
 - `ci`: verify gem builds ([#8](https://github.com/gi/handlebars-ruby/pull/8))
 - `require`: allow loading from `handlebars-engine` and `handlebars/engine` ([#8](https://github.com/gi/handlebars-ruby/pull/8))
-
-### Changed
 
 ## [0.2.0] - 2022-01-27
 
