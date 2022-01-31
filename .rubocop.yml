@@ -138,6 +138,10 @@ Metrics/ModuleLength:
 Metrics/ParameterLists:
   Max: 10
 
+Naming/FileName:
+  Exclude:
+    - lib/handlebars-engine.rb
+
 RSpec/ExampleLength:
   CountAsOne:
     - array

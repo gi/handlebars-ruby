@@ -11,6 +11,19 @@ on:
       - main
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ruby-3
+          bundler-cache: true
+      - name: Build
+        run: bin/build
+
   coverage:
     runs-on: ubuntu-latest
     steps:
@@ -41,7 +54,7 @@ jobs:
           ruby-version: ruby-3
           bundler-cache: true
       - name: Lint
-        run: bundle exec rubocop
+        run: bin/lint
 
   test:
     strategy:
@@ -66,4 +79,4 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
       - name: Test
-        run: bundle exec rake
+        run: bin/rake
