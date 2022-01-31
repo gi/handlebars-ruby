@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "tempfile"
+
 RSpec.describe Handlebars::Engine do
   let(:engine) { described_class.new(**engine_options) }
   let(:engine_context) { engine.instance_variable_get(:@context) }
@@ -39,6 +41,36 @@ RSpec.describe Handlebars::Engine do
 
       it "does not create the context" do
         expect(engine_context).to be nil
+      end
+    end
+
+    context "when `path` is defined" do
+      let(:file) { Tempfile.open }
+
+      before do
+        engine_options[:path] = file.path
+        file.write <<~HANDLEBARS
+          var Handlebars = {
+            compile: () => "compile",
+            precompile: () => "precompile",
+            template: () => "template",
+            registerPartial: () => "registerPartial",
+            unregisterPartial: () => "unregisterPartial",
+            registerHelper: () => "registerHelper",
+            unregisterHelper: () => "unregisterHelper",
+            partials: {},
+            VERSION: "VERSION",
+          };
+        HANDLEBARS
+        file.rewind
+      end
+
+      after do
+        file.close
+      end
+
+      it "loads the file contents" do
+        expect(engine_context.eval("VERSION")).to eq("VERSION")
       end
     end
   end
@@ -114,19 +146,54 @@ RSpec.describe Handlebars::Engine do
 
   describe "#register_helper" do
     let(:name) { :helper }
-    let(:function) { ->(ctx, *args, opts) {} }
+    let(:function) { ->(_ctx, *_args, _opts) { rendered } }
     let(:template) { "{{#{name} name name=name}}" }
 
     before do
-      allow(function).to receive(:call).with(any_args).and_call_original
-      engine.register_helper(name, &function)
+      engine.register_helper(name, function)
     end
 
     it "is defined" do
       expect(engine).to respond_to(:register_helper)
     end
 
-    describe "rendering" do
+    context "with positional parameters" do
+      context "when function is argument" do
+        before do
+          engine.register_helper(name, function)
+        end
+
+        describe "rendering" do
+          include_examples "rendering"
+        end
+      end
+
+      context "when function is block" do
+        before do
+          engine.register_helper(name, &function)
+        end
+
+        describe "rendering" do
+          include_examples "rendering"
+        end
+      end
+    end
+
+    context "with keyword parameters" do
+      before do
+        engine.register_helper(name => function)
+      end
+
+      describe "rendering" do
+        include_examples "rendering"
+      end
+    end
+
+    context "with a Ruby function" do
+      before do
+        allow(function).to receive(:call).with(any_args).and_call_original
+      end
+
       describe "the first parameter" do
         it "is the context" do
           render_context.transform_keys!(&:to_s)
@@ -177,6 +244,80 @@ RSpec.describe Handlebars::Engine do
             args = [anything, any_args, opts]
             render
             expect(function).to have_received(:call).with(*args)
+          end
+        end
+      end
+    end
+
+    context "with a JavaScript function" do
+      let(:function) {
+        <<~JS
+          function (...args) {
+            args.unshift(this);
+            return tester(...args);
+          }
+        JS
+      }
+      let(:tester) { ->(_ctx, *_args, _opts) { rendered } }
+
+      before do
+        allow(tester).to receive(:call).with(any_args).and_call_original
+        engine_context.attach("tester", tester)
+      end
+
+      describe "rendering" do
+        include_examples "rendering"
+      end
+
+      describe "`this`" do
+        it "is the context" do
+          render_context.transform_keys!(&:to_s)
+          args = [render_context, any_args, anything]
+          render
+          expect(tester).to have_received(:call).with(*args)
+        end
+      end
+
+      describe "the first parameter(s)" do
+        it "is the positional argument(s)" do
+          args = [anything, *render_context.values_at(:name), anything]
+          render
+          expect(tester).to have_received(:call).with(*args)
+        end
+      end
+
+      describe "the last parameter" do
+        it "is the options" do
+          opts = include(
+            "data" => kind_of(Hash),
+            "hash" => { "name" => render_context[:name] },
+            "name" => name.to_s,
+          )
+          args = [anything, any_args, opts]
+          render
+          expect(tester).to have_received(:call).with(*args)
+        end
+      end
+
+      context "with a block helper" do
+        let(:template) { "{{##{name} age}}function{{else}}inverse{{/#{name}}}" }
+        let(:function) {
+          <<~JS
+            function (age, opts) {
+              return age > 0 ? opts.fn() : opts.inverse();
+            }
+          JS
+        }
+
+        describe "the options" do
+          it "includes the main block function" do
+            render_context[:age] = 30
+            expect(render).to eq("function")
+          end
+
+          it "includes the else block function" do
+            render_context[:age] = 0
+            expect(render).to eq("inverse")
           end
         end
       end
