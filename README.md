@@ -82,6 +82,32 @@ See https://handlebarsjs.com/guide/#custom-helpers.
 
 ### Block Helpers
 
+Block helpers make it possible to define custom iterators and other
+functionality that can invoke the passed block with a new context.
+
+Currently, there is a limitation with the underlying JavaScript engine: it does
+not allow for reentrant calls from within attached Ruby functions: see
+[MiniRacer#225](https://github.com/rubyjs/mini_racer/issues/225). Thus, the
+block function returned to the helper (in `options.fn`) cannot be  invoked.
+
+Thus, for block helpers, a string of JavaScript must define the helper function:
+```ruby
+handlebars = Handlebars::Engine.new
+handlebars.register_helper(map: <<~JS)
+  function(...args) {
+    const ctx = this;
+    const opts = args.pop();
+    const items = args[0];
+    const separator = args[1];
+    const mapped = items.map((item) => opts.fn(item));
+    return mapped.join(separator);
+  }
+JS
+template = handlebars.compile("{{#map items '|'}}'{{this}}'{{/map}}")
+template.call({ items: [1, 2, 3] })
+# => "'1'|2'|'3'"
+```
+
 See https://handlebarsjs.com/guide/#block-helpers.
 
 ### Partials

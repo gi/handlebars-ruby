@@ -63,16 +63,28 @@ module Handlebars
 
     # Registers helpers accessible by any template in the environment.
     #
+    # The function can be either a proc or a string:
+    # * When the function is a proc, it can be either passed in as a normal
+    #   parameter or as a block.
+    # * When the function is a string, it is interpreted as a JavaScript
+    #   function.
+    #
     # @param name [String, Symbol] the name of the helper
+    # @param function [Proc, String] the helper function
     # @yieldparam context [Hash] the current context
     # @yieldparam arguments [Object] the arguments (optional)
     # @yieldparam options [Hash] the options hash (optional)
     # @see https://handlebarsjs.com/api-reference/runtime.html#handlebars-registerhelper-name-helper
-    def register_helper(name = nil, **helpers, &block)
-      helpers[name] = block if name
+    def register_helper(name = nil, function = nil, **helpers, &block)
+      helpers[name] = block || function if name
       helpers.each do |n, f|
-        attach(n, &f)
-        call(:registerHelper, [n.to_s, n.to_sym], eval: true)
+        case f
+        when Proc
+          attach(n, &f)
+          evaluate("registerHelper('#{n}', #{n})")
+        when String, Symbol
+          evaluate("Handlebars.registerHelper('#{n}', #{f})")
+        end
       end
     end
 
@@ -217,14 +229,7 @@ module Handlebars
     end
 
     def js_args(args)
-      args.map { |arg|
-        case arg
-        when Symbol
-          arg
-        else
-          JSON.generate(arg)
-        end
-      }
+      args.map { |arg| JSON.generate(arg) }
     end
   end
 end
