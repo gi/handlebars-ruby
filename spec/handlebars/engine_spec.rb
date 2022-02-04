@@ -92,11 +92,32 @@ RSpec.describe Handlebars::Engine do
   shared_examples "rendering" do |error: false|
     if error
       it "raises an error" do
-        expect { render }.to raise_error(MiniRacer::RuntimeError)
+        expect { render }.to raise_error(Handlebars::Engine::Error)
       end
     else
       it "renders the template" do
         expect(render).to eq(rendered)
+      end
+    end
+  end
+
+  shared_examples "compiling with options" do
+    let(:template_options) { {} }
+
+    describe "knownHelpers" do
+      let(:render_context) { { age: -30 } }
+      let(:rendered) { "Hello, you are 30!" }
+      let(:template) { "Hello, you are {{abs age}}!" }
+
+      before do
+        engine.register_helper(:abs) { |_ctx, age, _opts| age.abs }
+        template_options[:knownHelpers] = {
+          abs: true,
+        }
+      end
+
+      describe "rendering" do
+        include_examples "rendering"
       end
     end
   end
@@ -111,6 +132,8 @@ RSpec.describe Handlebars::Engine do
     describe "return value" do
       it_behaves_like "renderer"
     end
+
+    it_behaves_like "compiling with options"
   end
 
   describe "#precompile" do
@@ -138,6 +161,8 @@ RSpec.describe Handlebars::Engine do
     describe "return value" do
       it_behaves_like "renderer"
     end
+
+    it_behaves_like "compiling with options"
   end
 
   ###################################

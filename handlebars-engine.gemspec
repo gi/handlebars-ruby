@@ -8,9 +8,17 @@ Gem::Specification.new do |spec|
   spec.authors = ["Zach Gianos"]
   spec.email = ["zach.gianos+git@gmail.com"]
 
-  spec.summary = "A simple interface to Handlebars.js for Ruby."
+  spec.summary = "A complete interface to Handlebars.js for Ruby."
   spec.description = <<-DESCRIPTION
-    A simple interface to Handlebars.js for Ruby.
+    A complete interface to Handlebars.js for Ruby.
+
+    Handlebars::Engine provides a complete Ruby API for the official JavaScript
+    version of Handlebars, including the abilities to register Ruby blocks/procs
+    as Handlebars helper functions and to dynamically register partials.
+
+    It uses MiniRacer for the bridge between Ruby and the V8 JavaScript engine.
+
+    Handlebars::Engine was created as a replacement for handlebars.rb.
   DESCRIPTION
 
   spec.homepage = "https://github.com/gi/handlebars-ruby"

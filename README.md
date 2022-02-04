@@ -1,12 +1,22 @@
 # Handlebars::Engine
 
 [![Gem Version](https://badge.fury.io/rb/handlebars-engine.svg)](https://rubygems.org/gems/handlebars-engine)
-[![Build Status](https://github.com/gi/handlebars-ruby/actions/workflows/ci.yml/badge.svg)](https://github.com/gi/handlebars-ruby/actions/workflows/ci.yml)
+[![CI Status](https://github.com/gi/handlebars-ruby/actions/workflows/ci.yml/badge.svg)](https://github.com/gi/handlebars-ruby/actions/workflows/ci.yml)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/45d98ad9e12ee3384161/test_coverage)](https://codeclimate.com/github/gi/handlebars-ruby/test_coverage)
 [![Maintainability](https://api.codeclimate.com/v1/badges/45d98ad9e12ee3384161/maintainability)](https://codeclimate.com/github/gi/handlebars-ruby/maintainability)
 [![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.txt)
 
-A simple interface to [Handlebars.js](https://handlebarsjs.com) for Ruby.
+A complete interface to [Handlebars.js](https://handlebarsjs.com) for Ruby.
+
+`Handlebars::Engine` provides a complete Ruby API for the official JavaScript
+version of Handlebars, including the abilities to register Ruby blocks/procs as
+Handlebars helper functions and to dynamically register partials.
+
+It uses [MiniRacer](https://github.com/rubyjs/mini_racer) for the bridge between
+Ruby and the V8 JavaScript engine.
+
+`Handlebars::Engine` was created as a replacement for
+[handlebars.rb](https://github.com/cowboyd/handlebars.rb).
 
 ## Installation
 

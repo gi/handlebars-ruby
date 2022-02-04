@@ -12,6 +12,8 @@ module Handlebars
   # This API follows the JavaScript API as closely as possible:
   # https://handlebarsjs.com/api-reference/.
   class Engine
+    Error = MiniRacer::RuntimeError
+
     # Creates a new instance.
     #
     # @param lazy [true, false] immediately loads and initializes the JavaScript
