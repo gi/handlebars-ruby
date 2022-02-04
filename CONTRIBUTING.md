@@ -1,5 +1,18 @@
 # Contributing
 
+Bug reports and pull requests are welcome on GitHub:
+https://github.com/gi/handlebars-ruby.
+
+1. Fork the repository: https://github.com/gi/handlebars-ruby.
+1. Create an issue branch: `git checkout -b issue-N/summary origin/develop`)
+1. Run [setup](#Setup): `bin/setup`.
+1. Add tests for your updates.
+1. Run [tests](#Test): `bin/test`.
+1. Run linter: `bin/lint`.
+1. Commit changes: `git commit -am '[#N] Summary'`.
+1. Push changes: `git push origin head`.
+1. Create a pull request targeting `develop`.
+
 ## Branches
 
 This repository follows a modified version of the
