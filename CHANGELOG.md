@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.3] - 2022-02-17
+
+### Changed
+- `engine/function`: remove object finalizer (fixes [#14](https://github.com/gi/handlebars-ruby/issues/14))
+
 ## [0.3.2] - 2022-02-17
 
 ### Changed
