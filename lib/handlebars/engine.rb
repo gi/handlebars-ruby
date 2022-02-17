@@ -4,6 +4,7 @@ require "handlebars/source"
 require "json"
 require "mini_racer"
 require "securerandom"
+require_relative "engine/function"
 require_relative "engine/version"
 
 module Handlebars
@@ -199,9 +200,7 @@ module Handlebars
       result = evaluate(code)
 
       if var && result.is_a?(MiniRacer::JavaScriptFunction)
-        result = ->(*a) { @context.call(var, *a) }
-        finalizer = ->(*) { evaluate("delete #{var}") }
-        ObjectSpace.define_finalizer(result, finalizer)
+        result = Function.new(@context, var)
       end
 
       result

@@ -154,6 +154,9 @@ RSpec/MultipleMemoizedHelpers:
 RSpec/NestedGroups:
   Max: 8
 
+Style/DocumentDynamicEvalDefinition:
+  Enabled: false
+
 Style/BlockDelimiters:
   EnforcedStyle: semantic
   AllowBracesOnProceduralOneLiners: true
