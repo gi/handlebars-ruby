@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.2] - 2022-02-17
+
+### Changed
+- `engine`: fixed issue with memory leak ([#15](https://github.com/gi/handlebars-ruby/pull/15))
+
 ## [0.3.1] - 2022-02-04
 
 ### Added

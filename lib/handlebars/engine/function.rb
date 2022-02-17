@@ -16,7 +16,10 @@ module Handlebars
 
       def self.finalizer(context, name)
         proc {
-          context.eval("delete #{name}")
+          begin
+            context.eval("delete #{name}")
+          rescue ThreadError # rubocop:disable Lint/SuppressedException
+          end
         }
       end
     end
