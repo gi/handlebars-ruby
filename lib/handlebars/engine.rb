@@ -21,7 +21,8 @@ module Handlebars
     #   environment.
     # @param path [String, nil] the path to the version of Handlebars to load.
     #   If `nil`, the contents of `Handlebars::Source.bundled_path` is loaded.
-    def initialize(lazy: false, path: nil)
+    def initialize(lazy: false, logger: nil, path: nil)
+      @logger = logger
       @path = path
       init! unless lazy
     end
@@ -175,12 +176,15 @@ module Handlebars
 
     def attach(name, &block)
       init!
+      @logger&.debug { "[handlebars] attaching #{name}" }
       @context.attach(name.to_s, block)
     end
 
     def call(name, args, assign: false, eval: false)
       init!
       name = name.to_s
+
+      @logger&.debug { "[handlebars] calling #{name} with args #{args}" }
 
       if assign || eval
         call_via_eval(name, args, assign: assign)
@@ -207,6 +211,7 @@ module Handlebars
     end
 
     def evaluate(code)
+      @logger&.debug { "[handlebars] evaluating #{code}" }
       @context.eval(code)
     end
 
@@ -222,9 +227,17 @@ module Handlebars
     def init!
       return if @init
 
+      @logger&.debug { "[handlebars] initializing" }
+
       @context = MiniRacer::Context.new
+      @context.attach(
+        "console.log",
+        ->(*args) { @logger&.debug { "[handlebars] #{args.join(" ")}" } },
+      )
       @context.load(@path || ::Handlebars::Source.bundled_path)
       @context.load(File.absolute_path("engine/init.js", __dir__))
+
+      @logger&.debug { "[handlebars] initialized" }
 
       @init = true
     end

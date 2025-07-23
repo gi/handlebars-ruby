@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
+require "logger"
 require "tempfile"
 
 RSpec.describe Handlebars::Engine do
   let(:engine) { described_class.new(**engine_options) }
   let(:engine_context) { engine.instance_variable_get(:@context) }
   let(:engine_options) { {} }
+  let(:log) { Tempfile.new }
+  let(:logger) { Logger.new(log, level: Logger::FATAL) }
   let(:render) { renderer.call(render_context, render_options) }
   let(:render_context) { { name: "Zach", age: 30 } }
   let(:render_options) { {} }
@@ -41,6 +44,25 @@ RSpec.describe Handlebars::Engine do
 
       it "does not create the context" do
         expect(engine_context).to be_nil
+      end
+    end
+
+    context "when `logger` is defined" do
+      before do
+        engine_options[:logger] = logger
+        logger.debug!
+      end
+
+      it "logs initialization" do
+        engine
+        log.rewind
+        expect(log.read).to include("[handlebars] initializing")
+      end
+
+      it "logs javascript" do
+        engine.send(:evaluate, "console.log('js', 'log')")
+        log.rewind
+        expect(log.read).to include("[handlebars] js log")
       end
     end
 
