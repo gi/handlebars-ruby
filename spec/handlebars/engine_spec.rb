@@ -40,7 +40,7 @@ RSpec.describe Handlebars::Engine do
       end
 
       it "does not create the context" do
-        expect(engine_context).to be nil
+        expect(engine_context).to be_nil
       end
     end
 
