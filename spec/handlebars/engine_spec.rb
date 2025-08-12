@@ -255,7 +255,7 @@ RSpec.describe Handlebars::Engine do
         describe "the options" do
           it "includes the main block function" do
             opts = include(
-              "fn" => kind_of(MiniRacer::JavaScriptFunction),
+              "fn" => "function", # kind_of(MiniRacer::JavaScriptFunction),
             )
             args = [anything, any_args, opts]
             render
@@ -264,7 +264,7 @@ RSpec.describe Handlebars::Engine do
 
           it "includes the else block function" do
             opts = include(
-              "inverse" => kind_of(MiniRacer::JavaScriptFunction),
+              "inverse" => "function", # kind_of(MiniRacer::JavaScriptFunction),
             )
             args = [anything, any_args, opts]
             render
@@ -279,6 +279,14 @@ RSpec.describe Handlebars::Engine do
         <<~JS
           function (...args) {
             args.unshift(this);
+            const { ...options } = args[args.length-1];
+            Object.entries(options).forEach(([key, value]) => {
+              if (typeof value === "function") {
+                // functions are cannot be passed back to Ruby
+                options[key] = "function";
+              }
+            });
+            args[args.length-1] = options
             return tester(...args);
           }
         JS
