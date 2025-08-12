@@ -60,13 +60,15 @@ jobs:
     strategy:
       matrix:
         os:
+          - macos-14
           - macos-latest
+          - ubuntu-22.04
           - ubuntu-latest
         ruby:
-          - ruby-2.6
-          - ruby-2.7
-          - ruby-3.0
           - ruby-3.1
+          - ruby-3.2
+          - ruby-3.3
+          - ruby-3.4
           # - jruby
           # - truffleruby
     runs-on: ${{ matrix.os }}

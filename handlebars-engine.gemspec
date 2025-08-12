@@ -23,7 +23,7 @@ Gem::Specification.new do |spec|
 
   spec.homepage = "https://github.com/gi/handlebars-ruby"
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 2.6.0"
+  spec.required_ruby_version = ">= 3.0"
 
   spec.metadata["changelog_uri"] = "#{spec.homepage}/CHANGELOG.md"
   spec.metadata["github_repo"] = spec.homepage

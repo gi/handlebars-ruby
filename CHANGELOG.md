@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.4] - 2025-08-12
+
+### Changed
+- `engine`: fixed issue with serialization of functions ([#26](https://github.com/gi/handlebars-ruby/pull/26))
+- `engine`: include optional logging ([#24](https://github.com/gi/handlebars-ruby/pull/24))
+- `ci`: test against macOS 14, Ubuntu 22.04, and ruby 3.1-3.4 ([#27](https://github.com/gi/handlebars-ruby/pull/27))
+
 ## [0.3.3] - 2022-02-17
 
 ### Changed
