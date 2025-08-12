@@ -84,9 +84,9 @@ module Handlebars
         case f
         when Proc
           attach(n, &f)
-          evaluate("registerHelper('#{n}', #{n})")
+          evaluate("registerRbHelper('#{n}', #{n})")
         when String, Symbol
-          evaluate("Handlebars.registerHelper('#{n}', #{f})")
+          evaluate("registerJsHelper('#{n}', #{f})")
         end
       end
     end
